@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useToast } from '../components/Toast';
 
 export default function LandingPage({ navigate }) {
@@ -12,6 +13,25 @@ export default function LandingPage({ navigate }) {
   const videoRef = useRef(null);
   const videoSectionRef = useRef(null);
   const { addToast } = useToast();
+
+  // Lock body scrolling when modal is open
+  useEffect(() => {
+    if (selectedHackathon || videoModalOpen) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') {
+          setSelectedHackathon(null);
+          setVideoModalOpen(false);
+        }
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = prevOverflow;
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [selectedHackathon, videoModalOpen]);
 
   // Scroll listener for sticky navbar blur & scroll effects
   useEffect(() => {
@@ -603,105 +623,183 @@ export default function LandingPage({ navigate }) {
       </footer>
 
       {/* ---------------- INTERACTIVE HACKATHON DETAILS MODAL ---------------- */}
-      {selectedHackathon && (
-        <div
-          className="modal-overlay"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(10, 10, 10, 0.75)',
-            backdropFilter: 'blur(8px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '20px',
-            animation: 'modalIn 0.25s ease-out',
-          }}
-          onClick={() => setSelectedHackathon(null)}
-        >
+      {selectedHackathon &&
+        typeof document !== 'undefined' &&
+        createPortal(
           <div
-            className="modal-card"
-            style={{
-              background: '#fff',
-              maxWidth: 580,
-              width: '100%',
-              borderRadius: 12,
-              padding: 32,
-              border: '1px solid #deded8',
-              boxShadow: '0 24px 60px rgba(0,0,0,0.2)',
-              position: 'relative',
-              animation: 'cardRise 0.3s ease-out',
-            }}
-            onClick={(e) => e.stopPropagation()}
+            className="arena-modal-overlay"
+            onClick={() => setSelectedHackathon(null)}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-              <div>
-                <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, letterSpacing: 1.5, color: '#858580', display: 'block', marginBottom: 4 }}>
-                  {selectedHackathon.tag} · {selectedHackathon.id}
-                </span>
-                <h2 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: '#111' }}>
-                  {selectedHackathon.title}
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedHackathon(null)}
+            <div
+              className="arena-modal-card"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div
                 style={{
-                  background: '#f0f0ec',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: 32,
-                  height: 32,
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  fontSize: 16,
-                  color: '#111',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: 16,
                 }}
               >
-                ✕
-              </button>
-            </div>
-
-            <p style={{ color: '#4f4f4b', fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>
-              {selectedHackathon.desc}
-            </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 28, background: '#f7f7f4', padding: 16, borderRadius: 8, border: '1px solid #deded8' }}>
-              <div>
-                <span style={{ fontFamily: 'DM Mono', fontSize: 9, color: '#858580', display: 'block' }}>PRIZE POOL</span>
-                <strong style={{ fontSize: 16, color: '#82b91a', fontWeight: 800 }}>{selectedHackathon.prize}</strong>
+                <div>
+                  <span
+                    style={{
+                      fontFamily: 'DM Mono, monospace',
+                      fontSize: 10,
+                      letterSpacing: 1.5,
+                      color: '#858580',
+                      display: 'block',
+                      marginBottom: 4,
+                    }}
+                  >
+                    {selectedHackathon.tag} · {selectedHackathon.id}
+                  </span>
+                  <h2
+                    style={{
+                      fontSize: 22,
+                      fontWeight: 800,
+                      margin: 0,
+                      color: '#111',
+                    }}
+                  >
+                    {selectedHackathon.title}
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedHackathon(null)}
+                  style={{
+                    background: '#f0f0ec',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: 32,
+                    height: 32,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontSize: 15,
+                    color: '#111',
+                  }}
+                  aria-label="Close modal"
+                >
+                  ✕
+                </button>
               </div>
-              <div>
-                <span style={{ fontFamily: 'DM Mono', fontSize: 9, color: '#858580', display: 'block' }}>TEAMS</span>
-                <strong style={{ fontSize: 14, color: '#111' }}>{selectedHackathon.teams}</strong>
-              </div>
-              <div>
-                <span style={{ fontFamily: 'DM Mono', fontSize: 9, color: '#858580', display: 'block' }}>TIMELINE</span>
-                <strong style={{ fontSize: 14, color: '#7665ff' }}>{selectedHackathon.deadline}</strong>
-              </div>
-            </div>
 
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button
-                type="button"
-                className="hero-explore"
-                style={{ flex: 1, padding: '14px 20px', borderRadius: 8, background: '#111', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-                onClick={() => {
-                  setSelectedHackathon(null);
-                  navigate('/student');
-                  addToast(`Entered ${selectedHackathon.title} Arena!`, 'success');
+              <p
+                style={{
+                  color: '#4f4f4b',
+                  fontSize: 13,
+                  lineHeight: 1.6,
+                  marginBottom: 20,
                 }}
               >
-                <span>ENTER ARENA WORKSPACE</span>
-                <b>↗</b>
-              </button>
+                {selectedHackathon.desc}
+              </p>
+
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: 10,
+                  marginBottom: 24,
+                  background: '#f7f7f4',
+                  padding: 14,
+                  borderRadius: 8,
+                  border: '1px solid #deded8',
+                }}
+              >
+                <div>
+                  <span
+                    style={{
+                      fontFamily: 'DM Mono',
+                      fontSize: 9,
+                      color: '#858580',
+                      display: 'block',
+                    }}
+                  >
+                    PRIZE POOL
+                  </span>
+                  <strong
+                    style={{
+                      fontSize: 15,
+                      color: '#82b91a',
+                      fontWeight: 800,
+                    }}
+                  >
+                    {selectedHackathon.prize}
+                  </strong>
+                </div>
+                <div>
+                  <span
+                    style={{
+                      fontFamily: 'DM Mono',
+                      fontSize: 9,
+                      color: '#858580',
+                      display: 'block',
+                    }}
+                  >
+                    TEAMS
+                  </span>
+                  <strong style={{ fontSize: 13, color: '#111' }}>
+                    {selectedHackathon.teams}
+                  </strong>
+                </div>
+                <div>
+                  <span
+                    style={{
+                      fontFamily: 'DM Mono',
+                      fontSize: 9,
+                      color: '#858580',
+                      display: 'block',
+                    }}
+                  >
+                    TIMELINE
+                  </span>
+                  <strong style={{ fontSize: 13, color: '#7665ff' }}>
+                    {selectedHackathon.deadline}
+                  </strong>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  type="button"
+                  className="hero-explore"
+                  style={{
+                    flex: 1,
+                    padding: '12px 18px',
+                    borderRadius: 8,
+                    background: '#111',
+                    color: '#fff',
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                  }}
+                  onClick={() => {
+                    setSelectedHackathon(null);
+                    navigate('/student');
+                    addToast(
+                      `Entered ${selectedHackathon.title} Arena!`,
+                      'success'
+                    );
+                  }}
+                >
+                  <span>ENTER ARENA WORKSPACE</span>
+                  <b>↗</b>
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
 
       {/* ---------------- CINEMATIC VIDEO MODAL ---------------- */}
       {videoModalOpen && (
