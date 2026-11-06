@@ -114,32 +114,55 @@ function AppContent() {
           { path: '/login', label: 'Login' },
           { path: '/register', label: 'Register' },
           { path: '/student', label: 'Student Arena' },
+          { href: '/student.html', label: 'Pure HTML/CSS/JS' },
           { path: '/organizer', label: 'Organizer' },
           { path: '/admin', label: 'Admin' },
           { path: '/verify/CC-2026-WIN', label: 'Verify' },
         ].map((item) => (
-          <button
-            key={item.path}
-            type="button"
-            onClick={() => {
-              navigate(item.path);
-              addToast(`Navigated to ${item.label}`);
-            }}
-            style={{
-              background: currentPath === item.path ? '#a8e62e' : 'transparent',
-              color: currentPath === item.path ? '#111' : '#ccc',
-              border: 'none',
-              borderRadius: 20,
-              padding: '4px 10px',
-              fontSize: 10,
-              fontFamily: 'DM Mono',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
-          >
-            {item.label}
-          </button>
+          item.href ? (
+            <a
+              key={item.href}
+              href={item.href}
+              style={{
+                background: 'rgba(168, 230, 46, 0.18)',
+                color: '#a8e62e',
+                border: '1px solid rgba(168, 230, 46, 0.4)',
+                borderRadius: 20,
+                padding: '4px 10px',
+                fontSize: 10,
+                fontFamily: 'DM Mono',
+                fontWeight: 700,
+                textDecoration: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              {item.label}
+            </a>
+          ) : (
+            <button
+              key={item.path}
+              type="button"
+              onClick={() => {
+                navigate(item.path);
+                addToast(`Navigated to ${item.label}`);
+              }}
+              style={{
+                background: currentPath === item.path ? '#a8e62e' : 'transparent',
+                color: currentPath === item.path ? '#111' : '#ccc',
+                border: 'none',
+                borderRadius: 20,
+                padding: '4px 10px',
+                fontSize: 10,
+                fontFamily: 'DM Mono',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              {item.label}
+            </button>
+          )
         ))}
       </div>
     </div>

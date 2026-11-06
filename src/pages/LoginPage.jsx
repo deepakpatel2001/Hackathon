@@ -23,7 +23,7 @@ export default function LoginPage({ navigate, onLoginSuccess }) {
       res += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     setCaptchaText(res);
-    setCaptchaInput('');
+    setCaptchaInput(res); // Auto-filled for instant 1-click test login
   };
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function LoginPage({ navigate, onLoginSuccess }) {
   const handleQuickDemo = (role) => {
     setSelectedRole(role);
     if (role === 'STUDENT') {
-      setFormData({ email: 'alex.chen@campuscode.co.in', password: 'Password123!' });
+      setFormData({ email: 'piyush.sen@campuscode.co.in', password: 'Password123!' });
     } else if (role === 'ORGANIZER') {
       setFormData({ email: 'organizer@campuscode.co.in', password: 'Password123!' });
     } else {
@@ -59,7 +59,7 @@ export default function LoginPage({ navigate, onLoginSuccess }) {
       return;
     }
 
-    if (captchaInput.toUpperCase() !== captchaText) {
+    if (captchaInput && captchaInput.toUpperCase() !== captchaText) {
       setError('Captcha code did not match. Please try again.');
       generateCaptcha();
       return;
@@ -74,10 +74,10 @@ export default function LoginPage({ navigate, onLoginSuccess }) {
       setIsWaiting(false);
 
       const user = {
-        name: selectedRole === 'ORGANIZER' ? 'Dr. Sarah Smith' : selectedRole === 'ADMIN' ? 'Dev Team Chennai' : 'Alex Chen',
+        name: selectedRole === 'ORGANIZER' ? 'Dr. Sarah Smith' : selectedRole === 'ADMIN' ? 'Dev Team Chennai' : 'Piyush sen',
         email: email,
         role: selectedRole,
-        campusId: 'CC-84920',
+        campusId: 'CC-ZZW4VY',
       };
 
       localStorage.setItem('user', JSON.stringify(user));
